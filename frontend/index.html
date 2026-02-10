@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auditoria de Crédito Bancário</title>
+</head>
+
+<body>
+    <h1>Auditoria de Crédito Bancário</h1>
+    <form id="creditoForm">
+        <label>
+            Nome:
+            <input type="text" id="nome" required>
+        </label>
+        <br>
+        <br>
+
+        <label>
+            Idade:
+            <input type="text" id="idade" required>
+        </label>
+        <br>
+        <br>
+
+        <label>
+            Renda Anual:
+            <input type="text" id="renda" required>
+        </label>
+        <br>
+        <br>
+
+        <label>
+            Tempo empregado:
+            <input type="text" id="empregado">
+        </label>
+        <br>
+        <br>
+
+        <label>
+            Valor Emprestimo:
+            <input type="text" id="valorEmprestimo">
+        </label>
+        <br>
+        <br>
+        <label>
+            Taxa:
+            <input type="text" id="Taxa">
+        </label>
+
+        
+        <label>
+            Quantidade de Parcelas:
+            <input type="text" id="parcelas" required>
+        </label>
+        <br>
+        <br>
+
+        <button type="submit">Enviar</button>
+
+    </form>
+
+    <h2>Resultado</h2>
+    <pre id="resultado"></pre>
+
+    <script>
+        document.getElementById("creditoForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const dados = {
+                nome: document.getElementById("nome").value,
+                idade: Number(document.getElementById("idade").value),
+                rendaAnual: Number(document.getElementById("renda").value),
+                empregado: Number(document.getElementById("empregado").value),
+                valorEmprestimo: Number(document.getElementById("valorEmprestimo").value),
+                taxa: Number(document.getElementById("taxa").value),
+                quantidadeParcelas: Number(document.getElementById("parcelas").value)
+            };
+
+            try {
+                const response = await fetch("http://localhost:5000/api/credito/avaliar", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(dados)
+                });
+
+                const resultado = await response.json();
+                document.getElementById("resultado").textContent =
+                    JSON.stringify(resultado, null, 2);
+
+            } catch (error) {
+                document.getElementById("resultado").textContent =
+                    "Erro ao comunicar com o backend";
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>
