@@ -153,10 +153,10 @@ Merge para `dev` via Pull Request.
 
 # 👥 Equipe Monster com Leite
 
-Daniel
-Luann
-Jorge
-Mizael
+* Daniel
+* Luann
+* Jorge
+* Mizael
 
 ---
 
