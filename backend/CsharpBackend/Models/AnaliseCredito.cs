@@ -10,6 +10,7 @@
         public bool Aprovado { get; set; }
         public decimal LimiteAprovado { get; set; }
         public int Score { get; set; } 
+        public string LoanGrade { get; set; }
         public string Mensagem { get; set; }
         public DateTime DataAnalise { get; set; }
 

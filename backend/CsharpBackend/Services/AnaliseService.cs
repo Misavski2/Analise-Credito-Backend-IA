@@ -15,7 +15,14 @@ namespace CsharpBackend.Services
 
         public async Task<AnaliseCredito> ProcessarSolicitacao(SolicitacaoCredito solicitacao)
         {
-            
+            string notaCalculada = "D"; // Começa pessimista
+            double comprometimento = (double)solicitacao.ValorSolicitado / (double)solicitacao.Renda;
+
+            if (comprometimento < 0.15) notaCalculada = "A";      // Pede pouco (menos de 15% da renda) = Excelente
+            else if (comprometimento < 0.30) notaCalculada = "B"; // Pede razoável = Bom
+            else if (comprometimento < 0.50) notaCalculada = "C"; // Pede muito = Risco
+            else notaCalculada = "D";                             // Pede demais = Perigo
+
             var payloadPython = new
             {
                 person_age = solicitacao.Idade,
@@ -27,7 +34,7 @@ namespace CsharpBackend.Services
                 cb_person_cred_hist_length = 2, 
                 person_home_ownership = "RENT", 
                 loan_intent = "PERSONAL", 
-                loan_grade = "B", 
+                loan_grade = notaCalculada, 
                 cb_person_default_on_file = "N" 
             };
 
@@ -61,6 +68,7 @@ namespace CsharpBackend.Services
                     Nome = solicitacao.Nome,
                     CPF = solicitacao.CPF,
                     ValorSolicitado = solicitacao.ValorSolicitado,
+                    LoanGrade = notaCalculada,
                     Aprovado = aprovado,
                     LimiteAprovado = aprovado ? solicitacao.Renda * 0.3m : 0,
                     Mensagem = aprovado ? "Aprovado pela Inteligência Artificial" : "Reprovado por Alto Risco (IA)",
