@@ -1,0 +1,21 @@
+# --- Lixo do C# ---
+**/bin/
+**/obj/
+**/.vs/
+**/.vscode/
+*.user
+*.suo
+*.pdb
+
+# --- Banco de Dados ---
+*.db
+*.sqlite
+*.db-shm
+*.db-wal
+
+# --- Python ---
+**/__pycache__/
+**/*.pyc
+**/venv/
+**/.venv/
+**/.env
