@@ -1,140 +1,189 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auditoria de Crédito Bancário</title>
+    <title>Sistema de Análise de Crédito - Completo</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        h2 { text-align: center; color: #1a1a1a; margin-bottom: 20px; }
+        
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .full-width { grid-column: span 2; }
+        
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 0.9em; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 14px; transition: border 0.3s; }
+        input:focus, select:focus { border-color: #007bff; outline: none; }
+        
+        button { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 20px; transition: background 0.3s; }
+        button:hover { background-color: #0056b3; }
+        
+        #resultado { margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; display: none; animation: fadeIn 0.5s; }
+        .aprovado { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
+        .reprovado { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+        
+        .score-badge { font-size: 2em; font-weight: bold; display: block; margin: 10px 0; }
+        .loading { text-align: center; color: #666; font-style: italic; display: none; margin-top: 10px; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
-
 <body>
-    <h1>Auditoria de Crédito Bancário</h1>
-    <form id="creditoForm">
-        <label>
-            Nome:
-            <input type="text" id="nome" required>
-        </label>
-        <br>
-        <br>
 
-        <label for="person_age">
-            Idade:
-            <input type="text" id="person_age" required>
-        </label>
-        <br>
-        <br>
+    <div class="card">
+        <h2>🏦 Análise de Risco Completa</h2>
+        
+        <div class="form-grid">
+            <div class="full-width">
+                <label>Nome Completo</label>
+                <input type="text" id="nome" placeholder="Ex: João Silva">
+            </div>
+            
+            <div>
+                <label>CPF</label>
+                <input type="text" id="cpf" placeholder="000.000.000-00">
+            </div>
+            <div>
+                <label>Idade</label>
+                <input type="number" id="idade" placeholder="Ex: 30">
+            </div>
 
-        <label for="person_income">
-            Renda Anual:
-            <input type="text" id="person_income" required>
-        </label>
-        <br>
-        <br>
+            <div>
+                <label>Renda Mensal (R$)</label>
+                <input type="number" id="renda" placeholder="Ex: 5000">
+            </div>
+            <div>
+                <label>Tempo de Emprego (Anos)</label>
+                <input type="number" id="tempoEmprego" step="0.1" placeholder="Ex: 2.5">
+            </div>
 
-        <label for="person_emp_length">
-            Tempo empregado:
-            <input type="text" id="person_emp_length" required>
-        </label>
-        <br>
-        <br>
+            <div>
+                <label>Valor Solicitado (R$)</label>
+                <input type="number" id="valor" placeholder="Ex: 20000">
+            </div>
+            <div>
+                <label>Parcelas</label>
+                <input type="number" id="parcelas" placeholder="Ex: 24">
+            </div>
 
-        <label for="loan_amnt">
-            Valor Emprestimo:
-            <input type="text" id="loan_amnt" required>
-        </label>
-        <br>
-        <br>
+            <div class="full-width">
+                <label>Finalidade do Empréstimo</label>
+                <select id="finalidade">
+                    <option value="PERSONAL">Uso Pessoal</option>
+                    <option value="EDUCATION">Educação / Estudos</option>
+                    <option value="MEDICAL">Saúde / Médico</option>
+                    <option value="VENTURE">Empreendimento / Negócio</option>
+                    <option value="HOMEIMPROVEMENT">Reforma da Casa</option>
+                    <option value="DEBTCONSOLIDATION">Pagar Dívidas</option>
+                </select>
+            </div>
 
-        <label for="loan_int_rate">
-            Taxa:
-            <input type="text" id="loan_int_rate">
-        </label>
+            <div>
+                <label>Situação de Moradia</label>
+                <select id="tipoMoradia">
+                    <option value="RENT">Aluguel</option>
+                    <option value="OWN">Casa Própria</option>
+                    <option value="MORTGAGE">Financiado / Hipoteca</option>
+                    <option value="OTHER">Outro</option>
+                </select>
+            </div>
 
-        <label for="person_home_ownership">Situação do Imóvel</label>
-        <select name="person_home_ownership" id="person_home_ownership" required>
-            <option value="">Selecione...</option>
-            <option value="RENT">Alugado</option>
-            <option value="OWN">Próprio</option>
-            <option value="MORTGAGE">Financiado</option>
-            <option value="OTHER">Outro</option>
-        </select>
+            <div>
+                <label>Anos Histórico Crédito</label>
+                <input type="number" id="anosHistorico" placeholder="Ex: 5">
+            </div>
 
-        <label for="loan_intent">Finalidade do Empréstimo</label>
-        <select name="loan_intent" id="loan_intent" required>
-            <option value="">Selecione...</option>
-            <option value="PERSONAL">Pessoal</option>
-            <option value="EDUCATION">Educação</option>
-            <option value="MEDICAL">Médico / Saúde</option>
-            <option value="VENTURE">Empreendedorismo</option>
-            <option value="HOMEIMPROVEMENT">Reforma da Casa</option>
-            <option value="DEBTCONSOLIDATION">Consolidação de Dívidas</option>
-        </select>
+            <div class="full-width">
+                <label>Já teve nome sujo (Calote)?</label>
+                <select id="jaDeuCalote">
+                    <option value="N">Não, nunca tive</option>
+                    <option value="Y">Sim, já tive</option>
+                </select>
+            </div>
+        </div>
 
-        <label for="cb_person_default_on_file">
-            Histórico de Crédito:
-            <select name="cb_person_default_on_file" id="cb_person_default_on_file" required>
-                <option value="Y">Sim</option>
-                <option value="N">Não</option>
-            </select>
-        </label>
+        <button onclick="enviarAnalise()">🤖 Analisar com IA</button>
+        
+        <p id="loading" class="loading">📡 Consultando Cérebro Python via C#...</p>
 
-        <label>
-            Quantidade de Parcelas:
-            <input type="text" id="parcelas" required>
-        </label>
-        <br>
-        <br>
-
-
-        <button type="submit">Enviar</button>
-
-    </form>
-
-    <h2>Resultado</h2>
-    <pre id="resultado"></pre>
+        <div id="resultado"></div>
+    </div>
 
     <script>
-        
-        document.getElementById("creditoForm").addEventListener("submit", async function (event) {
-            event.preventDefault();
-
+        async function enviarAnalise() {
+            
             const dados = {
-                nome: document.getElementById("nome").value,
-                person_age: Number(document.getElementById("person_age").value),
-                person_income: Number(document.getElementById("person_income").value),
-                person_emp_length: Number(document.getElementById("person_emp_length").value),
-                loan_amnt: Number(document.getElementById("loan_amnt").value),
-                loan_int_rate: Number(document.getElementById("loan_int_rate").value),
-                quantidadeParcelas: Number(document.getElementById("parcelas").value),
-                person_home_ownership: (document.getElementById("person_home_ownership").value),
-                loan_intent: (document.getElementById("loan_intent").value),
-                cb_person_default_on_file: (document.getElementById("cb_person_default_on_file").value),
-                cb_person_cred_hist_length: Number(2)
-
+                nome: document.getElementById('nome').value,
+                cpf: document.getElementById('cpf').value,
+                idade: parseInt(document.getElementById('idade').value),
+                renda: parseFloat(document.getElementById('renda').value),
+                valorSolicitado: parseFloat(document.getElementById('valor').value),
+                parcelas: parseInt(document.getElementById('parcelas').value),
                 
+                
+                tempoEmprego: parseFloat(document.getElementById('tempoEmprego').value),
+                finalidade: document.getElementById('finalidade').value, 
+                tipoMoradia: document.getElementById('tipoMoradia').value, 
+                anosHistoricoCredito: parseInt(document.getElementById('anosHistorico').value),
+                jaDeuCalote: document.getElementById('jaDeuCalote').value 
             };
 
+            
+            if(!dados.nome || !dados.renda || isNaN(dados.tempoEmprego)) {
+                alert("Por favor, preencha todos os campos corretamente.");
+                return;
+            }
+
+            const divLoading = document.getElementById('loading');
+            const divResultado = document.getElementById('resultado');
+
+            divLoading.style.display = 'block';
+            divResultado.style.display = 'none';
+
             try {
-                const response = await fetch("http://localhost:5000/api/credito/avaliar", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+                
+                const response = await fetch('http://localhost:5295/api/analise', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dados)
                 });
 
-                const resultado = await response.json();
-                document.getElementById("resultado").textContent =
-                    JSON.stringify(resultado, null, 2);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Erro no servidor');
+                }
+
+                const resposta = await response.json();
+
+                divResultado.style.display = 'block';
+                divLoading.style.display = 'none';
+
+                if (resposta.aprovado) {
+                    divResultado.className = 'aprovado';
+                    divResultado.innerHTML = `
+                        <strong>CRÉDITO APROVADO!</strong><br>
+                        <span class="score-badge">${resposta.score}</span><br>
+                        Limite Sugerido: <strong>R$ ${resposta.limiteAprovado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong><br>
+                        <small>Nota de Risco: ${resposta.loanGrade || 'A'}</small>
+                    `;
+                } else {
+                    divResultado.className = 'reprovado';
+                    divResultado.innerHTML = `
+                        <strong>CRÉDITO NEGADO</strong><br>
+                        <span class="score-badge">${resposta.score}</span><br>
+                        <small>${resposta.mensagem}</small><br>
+                        <small>Nota de Risco: ${resposta.loanGrade || 'D'}</small>
+                    `;
+                }
 
             } catch (error) {
-                document.getElementById("resultado").textContent =
-                    "Erro ao comunicar com o backend";
+                console.error(error);
+                alert("Erro ao conectar: " + error.message + "\n\nVerifique se o backend C# está rodando.");
+                divLoading.style.display = 'none';
             }
-        });
-
+        }
     </script>
-
 </body>
-
 </html>

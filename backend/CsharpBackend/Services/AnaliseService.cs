@@ -15,27 +15,27 @@ namespace CsharpBackend.Services
 
         public async Task<AnaliseCredito> ProcessarSolicitacao(SolicitacaoCredito solicitacao)
         {
-            string notaCalculada = "D"; // Começa pessimista
+            string notaCalculada = "D"; 
             double comprometimento = (double)solicitacao.ValorSolicitado / (double)solicitacao.Renda;
 
-            if (comprometimento < 0.15) notaCalculada = "A";      // Pede pouco (menos de 15% da renda) = Excelente
-            else if (comprometimento < 0.30) notaCalculada = "B"; // Pede razoável = Bom
-            else if (comprometimento < 0.50) notaCalculada = "C"; // Pede muito = Risco
-            else notaCalculada = "D";                             // Pede demais = Perigo
+            if (comprometimento < 0.15) notaCalculada = "A";      
+            else if (comprometimento < 0.30) notaCalculada = "B"; 
+            else if (comprometimento < 0.50) notaCalculada = "C"; 
+            else notaCalculada = "D";                            
 
             var payloadPython = new
             {
                 person_age = solicitacao.Idade,
                 person_income = solicitacao.Renda,
-                person_emp_length = 5.0, 
+                person_emp_length = solicitacao.TempoEmprego, 
                 loan_amnt = solicitacao.ValorSolicitado,
                 loan_int_rate = 10.0, 
                 loan_percent_income = (double)solicitacao.ValorSolicitado / (double)solicitacao.Renda,
                 cb_person_cred_hist_length = 2, 
-                person_home_ownership = "RENT", 
-                loan_intent = "PERSONAL", 
+                person_home_ownership = solicitacao.TipoMoradia, 
+                loan_intent = solicitacao.Finalidade, 
                 loan_grade = notaCalculada, 
-                cb_person_default_on_file = "N" 
+                cb_person_default_on_file = solicitacao.JaDeuCalote 
             };
 
             var jsonContent = new StringContent(
