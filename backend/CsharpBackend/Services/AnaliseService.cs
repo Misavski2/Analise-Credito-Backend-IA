@@ -1,94 +1,92 @@
-﻿using CsharpBackend.Data;
-using CsharpBackend.Models;
-using CsharpBackend.Data; 
-using CsharpBackend.Models;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
+using CsharpBackend.Models;
 
-public class AnaliseService 
+namespace CsharpBackend.Services
 {
-    private readonly AppDbContext _context;
-    private readonly IHttpClientFactory _httpClientFactory;
-
-    public AnaliseService(AppDbContext context, IHttpClientFactory httpClientFactory)
+    public class AnaliseService
     {
-        _context = context;
-        _httpClientFactory = httpClientFactory;
-    }
+        private readonly HttpClient _httpClient;
 
-    public async Task<AnaliseCredito> ProcessarSolicitacao(SolicitacaoCredito solicitacao)
-    {
-
-        if (solicitacao.Idade < 18)
+        public AnaliseService(HttpClient httpClient)
         {
-            return await SalvarERetornarRejeicao(solicitacao, "Menor de idade");
+            _httpClient = httpClient;
         }
 
-        
-        decimal limiteParcela = solicitacao.Renda * 0.3m;
-        if (solicitacao.ValorParcela > limiteParcela)
+        public async Task<AnaliseCredito> ProcessarSolicitacao(SolicitacaoCredito solicitacao)
         {
-            return await SalvarERetornarRejeicao(solicitacao, "Parcela excede 30% da renda");
-        }
-
-        try
-        {
-            var client = _httpClientFactory.CreateClient();
+            
+            var payloadPython = new
+            {
+                person_age = solicitacao.Idade,
+                person_income = solicitacao.Renda,
+                person_emp_length = 5.0, 
+                loan_amnt = solicitacao.ValorSolicitado,
+                loan_int_rate = 10.0, 
+                loan_percent_income = (double)solicitacao.ValorSolicitado / (double)solicitacao.Renda,
+                cb_person_cred_hist_length = 2, 
+                person_home_ownership = "RENT", 
+                loan_intent = "PERSONAL", 
+                loan_grade = "B", 
+                cb_person_default_on_file = "N" 
+            };
 
             var jsonContent = new StringContent(
-                JsonSerializer.Serialize(solicitacao),
+                JsonSerializer.Serialize(payloadPython),
                 Encoding.UTF8,
                 "application/json");
 
-            var response = await client.PostAsync("http://localhost:5000/predict", jsonContent);
-            response.EnsureSuccessStatusCode();
-
-            var responseBody = await response.Content.ReadAsStringAsync();
-            using var doc = JsonDocument.Parse(responseBody);
-
-            double scoreDouble = doc.RootElement.GetProperty("score").GetDouble();
-            decimal scoreFinal = (decimal)scoreDouble;
-
-            bool aprovado = scoreFinal <= 0.6m;
-            string mensagem = aprovado ? "Aprovado via IA" : "Risco Alto detectado";
-
-            var analiseFinal = new AnaliseCredito
+            try
             {
-                Nome = solicitacao.Nome,
-                CPF = solicitacao.CPF,
-                ValorSolicitado = solicitacao.ValorSolicitado,
-                Score = scoreFinal,
+                
+                var response = await _httpClient.PostAsync("http://localhost:8000/avaliar", jsonContent);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    
+                    return GerarAnaliseFallback(solicitacao, "Erro na IA: " + response.StatusCode);
+                }
+
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                
+                
+                using var doc = JsonDocument.Parse(jsonResponse);
+                double probabilidadeCalote = doc.RootElement.GetProperty("risco").GetDouble();
+
+                
+                bool aprovado = probabilidadeCalote < 0.5;
+
+                return new AnaliseCredito
+                {
+                    Nome = solicitacao.Nome,
+                    CPF = solicitacao.CPF,
+                    ValorSolicitado = solicitacao.ValorSolicitado,
+                    Aprovado = aprovado,
+                    LimiteAprovado = aprovado ? solicitacao.Renda * 0.3m : 0,
+                    Mensagem = aprovado ? "Aprovado pela Inteligência Artificial" : "Reprovado por Alto Risco (IA)",
+                    DataAnalise = DateTime.Now,
+                    Score = (int)((1 - probabilidadeCalote) * 1000) 
+                };
+            }
+            catch (Exception ex)
+            {
+                
+                return GerarAnaliseFallback(solicitacao, "IA Indisponível: " + ex.Message);
+            }
+        }
+
+        private AnaliseCredito GerarAnaliseFallback(SolicitacaoCredito s, string motivo)
+        {
+            
+            bool aprovado = s.Renda >= (s.ValorSolicitado / 3);
+            return new AnaliseCredito
+            {
                 Aprovado = aprovado,
-                Mensagem = mensagem,
-                DataAnalise = DateTime.Now
+                LimiteAprovado = aprovado ? s.Renda * 0.1m : 0,
+                Mensagem = $"Análise de Contingência ({motivo})",
+                DataAnalise = DateTime.Now,
+                Score = 500
             };
-
-            _context.Analises.Add(analiseFinal);
-            await _context.SaveChangesAsync();
-
-            return analiseFinal;
         }
-        catch (Exception ex)
-        {
-            return await SalvarERetornarRejeicao(solicitacao, $"Erro na IA: {ex.Message}");
-        }
-    }
-
-    private async Task<AnaliseCredito> SalvarERetornarRejeicao(SolicitacaoCredito sol, string motivo)
-    {
-        var analise = new AnaliseCredito
-        {
-            Nome = sol.Nome,
-            CPF = sol.CPF,
-            ValorSolicitado = sol.ValorSolicitado,
-            Aprovado = false,
-            Mensagem = motivo,
-            DataAnalise = DateTime.Now,
-            Score = 0 
-        };
-
-        _context.Analises.Add(analise);
-        await _context.SaveChangesAsync();
-        return analise;
     }
 }

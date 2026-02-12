@@ -8,7 +8,8 @@
         public string CPF { get; set; } 
         public decimal ValorSolicitado { get; set; } 
         public bool Aprovado { get; set; }
-        public decimal Score { get; set; } 
+        public decimal LimiteAprovado { get; set; }
+        public int Score { get; set; } 
         public string Mensagem { get; set; }
         public DateTime DataAnalise { get; set; }
 
