@@ -86,8 +86,6 @@ pip install -r requirements.txt
 
 ## ▶ Executar o agente
 
-(ajustar conforme seu arquivo principal)
-
 ```bash
 python src/config/ml.py
 ```
