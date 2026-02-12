@@ -1,162 +1,63 @@
-# 📊 Auditoria de Crédito Bancário
+# Sistema de Auditoria de Crédito (Integração C# + IA)
 
-Sistema para análise e auditoria de crédito bancário utilizando:
-
-* Backend em **.NET (C#)**
-* Agente de Inteligência Artificial em **Python**
-* Modelo de Machine Learning treinado (Random Forest)
+Projeto Fullstack composto por uma API .NET (Backend) e um Agente Inteligente em Python (IA).
 
 ---
 
-## 📁 Estrutura do Projeto
+## Como Rodar (Guia Rápido)
 
-```
-AnaliseCredito/
-│
-├── backend/                 # API em C#
-│
-├── agente/                  # Agente de IA
-│   ├── model/
-│   │   └── credit_rf_model.pkl
-│   ├── src/
-│   │   └── config/
-│   │       └── ml.py
-│   ├── requirements.txt
-│   └── README.md
-│
-└── README.md
-```
+⚠️ **IMPORTANTE:** Siga a ordem exata abaixo para evitar erros de conexão.
 
----
-
-# 🚀 Como executar o projeto
-
----
-
-## 🔹 1️⃣ Clonar o repositório
-
-```bash
-git clone <url-do-repositorio>
-cd AnaliseCredito
-```
-
----
-
-# 🧠 Agente de IA (Python)
-
-## 🔧 Requisitos
-
-* Python **3.11**
-* pip
-
----
-
-## 🏗 Criar ambiente virtual
-
-Na pasta `agente/`:
+### 1. Iniciar o Cérebro (Python AI) 🧠
+Abra um terminal na pasta `agente` e execute:
 
 ```bash
 cd agente
-py -3.11 -m venv venv
-```
 
-Ativar o ambiente:
+# Ativar ambiente virtual
+# Windows:
+.\venv\Scripts\Activate
 
-### Windows (PowerShell)
-
-```bash
-venv\Scripts\Activate
-```
-
-### Linux/Mac
-
-```bash
+# Linux/Mac:
 source venv/bin/activate
-```
 
----
-
-## 📦 Instalar dependências
-
-```bash
+# Se for a primeira vez, instale as dependências:
 pip install -r requirements.txt
-```
+# (Ou manualmente: pip install fastapi uvicorn pydantic scikit-learn==1.6.1 pandas joblib)
 
----
+# Rodar o servidor na porta 8000
+python -m uvicorn src.main:app --reload --port 8000
+✅ Aguarde aparecer: Uvicorn running on http://127.0.0.1:8000
 
-## ▶ Executar o agente
+2. Iniciar o Backend (C# .NET) 
+Abra outro terminal na raiz do projeto e execute:
 
-```bash
-python src/config/ml.py
-```
+Bash
+cd backend/CsharpBackend
 
----
-
-# 💻 Backend (.NET)
-
-## 🔧 Requisitos
-
-* .NET SDK instalado
-
----
-
-## ▶ Executar a API
-
-Na pasta do backend:
-
-```bash
+# PASSO CRÍTICO: Criar o Banco de Dados localmente
+dotnet tool install --global dotnet-ef
 dotnet restore
-dotnet run
-```
+dotnet ef database update
 
----
+# Rodar a API
+dotnet watch run
+✅ Aguarde aparecer: Now listening on: http://localhost:5295
 
-# 🔀 Fluxo de Branches
+3. Como Testar (Via Postman) 
+URL: http://localhost:5295/api/analise
 
-* `main` → versão estável
-* `dev` → integração do time
-* `feature/*` → branches individuais dos membros
+Método: POST
 
-Fluxo recomendado:
+Body (JSON):
 
-```bash
-git checkout -b feature/nome-da-feature
-git commit -m "feat: descrição clara da alteração"
-git push origin feature/nome-da-feature
-```
-
-Merge para `dev` via Pull Request.
-
----
-
-# 🧪 Modelo de Machine Learning
-
-* Algoritmo: **Random Forest**
-* Arquivo treinado: `credit_rf_model.pkl`
-* Responsável pela análise de crédito com base nos dados fornecidos pelo backend.
-
----
-
-# 🛠 Boas Práticas
-
-* Não versionar a pasta `venv/`
-* Sempre usar Python 3.11
-* Manter `requirements.txt` atualizado
-* Usar commits semânticos:
-
-  * `feat:` nova funcionalidade
-  * `fix:` correção
-  * `chore:` ajustes internos
-  * `docs:` documentação
-
----
-
-# 👥 Equipe Monster com Leite
-
-* Daniel
-* Luann
-* Jorge
-* Mizael
-
----
-
+JSON
+{
+  "nome": "Cliente Teste",
+  "cpf": "123.456.789-00",
+  "renda": 5000,
+  "valorSolicitado": 2000,
+  "parcelas": 12,
+  "idade": 30
+}
+Resultado Esperado: O C# vai consultar o Python e devolver um JSON com "aprovado": true/false, "score" e "mensagem".
